@@ -1,0 +1,5 @@
+package: github.com/santacruz123/trader
+import: []
+testImport:
+- package: github.com/onsi/ginkgo
+- package: github.com/onsi/gomega

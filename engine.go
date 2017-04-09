@@ -8,8 +8,9 @@ import (
 type Engine struct {
 	strategies []*Strategy
 
-	tradeCh map[string]chan Trade
-	quoteCh map[string]chan Quote
+	tradeCh  map[string]chan Trade
+	quoteCh  map[string]chan Quote
+	changeCh map[string]chan struct{}
 
 	ohlc   map[string]*History
 	quotes map[string]*Quote
@@ -31,10 +32,11 @@ type Quote struct {
 //NewEngine constructor
 func NewEngine() *Engine {
 	return &Engine{
-		quoteCh: make(map[string]chan Quote),
-		tradeCh: make(map[string]chan Trade),
-		ohlc:    make(map[string]*History),
-		quit:    make(chan struct{}),
+		quoteCh:  make(map[string]chan Quote),
+		tradeCh:  make(map[string]chan Trade),
+		changeCh: make(map[string]chan struct{}),
+		ohlc:     make(map[string]*History),
+		quit:     make(chan struct{}),
 	}
 }
 
@@ -89,6 +91,7 @@ func (e *Engine) loop() {
 					return
 				case trade := <-ch:
 					e.gotTrade(s, trade)
+					e.changeCh[s] <- struct{}{}
 				}
 			}
 		}(symbol, tradeCh)
@@ -103,11 +106,31 @@ func (e *Engine) loop() {
 					return
 				case quote := <-ch:
 					e.gotQuote(s, quote)
+					e.changeCh[s] <- struct{}{}
 				}
 			}
 		}(symbol, quoteCh)
 	}
 
+	// Change
+	for s := range e.tradeCh {
+		go func(symbol string) {
+			for {
+				select {
+				case <-e.quit:
+					return
+				case <-e.changeCh[symbol]:
+					for i := range e.strategies {
+						if e.strategies[i].Symbol == symbol {
+							go e.strategies[i].OnTick(e)
+						}
+					}
+				}
+			}
+		}(s)
+	}
+
+	// Run every second
 	ticker := time.NewTicker(time.Second)
 
 	for {
@@ -115,7 +138,7 @@ func (e *Engine) loop() {
 		case <-ticker.C:
 			for _, one := range e.strategies {
 				go func(oneStrategy *Strategy) {
-					oneStrategy.Loop(e)
+					oneStrategy.OnTick(e)
 				}(one)
 			}
 		}

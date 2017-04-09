@@ -45,4 +45,25 @@ var _ = Describe("Engine", func() {
 		})
 	})
 
+	It("Quotes", func() {
+
+		symbol := "EUR/USD"
+
+		ngn := NewEngine()
+		quotes := make(chan Quote)
+		trades := make(chan Trade)
+		ngn.AddSymbol(symbol, quotes, trades)
+		ngn.Run()
+		defer ngn.Stop()
+
+		quote := Quote{
+			Bid: 35.23,
+			Ask: 36.21,
+		}
+
+		quotes <- quote
+
+		Expect(ngn.quotes[symbol].Bid).Should(BeNumerically("==", quote.Bid))
+		Expect(ngn.quotes[symbol].Ask).Should(BeNumerically("==", quote.Ask))
+	})
 })

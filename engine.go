@@ -12,7 +12,7 @@ type Engine struct {
 	quoteCh map[string]chan Quote
 
 	ohlc   map[string]*History
-	quotes map[string]Quote
+	quotes map[string]*Quote
 
 	quit chan struct{}
 }
@@ -59,6 +59,8 @@ func (e *Engine) AddSymbol(symbol string, quotes chan Quote, trades chan Trade) 
 		D1:  make(map[time.Time]*OHLC),
 	}
 
+	e.quotes = make(map[string]*Quote)
+	e.quotes[symbol] = &Quote{}
 }
 
 //AddStrategy to engine
@@ -85,11 +87,25 @@ func (e *Engine) loop() {
 				select {
 				case <-e.quit:
 					return
-				case trade := <-e.tradeCh[s]:
+				case trade := <-ch:
 					e.gotTrade(s, trade)
 				}
 			}
 		}(symbol, tradeCh)
+	}
+
+	// Quotes loop
+	for symbol, quoteCh := range e.quoteCh {
+		go func(s string, ch chan Quote) {
+			for {
+				select {
+				case <-e.quit:
+					return
+				case quote := <-ch:
+					e.gotQuote(s, quote)
+				}
+			}
+		}(symbol, quoteCh)
 	}
 
 	ticker := time.NewTicker(time.Second)

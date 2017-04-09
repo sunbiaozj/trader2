@@ -28,6 +28,19 @@ type OHLC struct {
 	Open, High, Low, Close, Volume float64
 }
 
+func (e *Engine) gotQuote(symbol string, quote Quote) {
+	h := e.quotes[symbol]
+
+	if quote.Bid != 0 {
+		h.Bid = quote.Bid
+	}
+
+	if quote.Ask != 0 {
+		h.Ask = quote.Ask
+	}
+
+}
+
 func (e *Engine) gotTrade(symbol string, t Trade) {
 	h := e.ohlc[symbol]
 

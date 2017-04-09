@@ -47,21 +47,7 @@ func (e *Engine) AddSymbol(symbol string, quotes chan Quote, trades chan Trade) 
 	e.quoteCh[symbol] = quotes
 	e.tradeCh[symbol] = trades
 
-	h := &History{
-		TimeSeries: make(map[Timeframe]map[time.Time]*OHLC),
-	}
-
-	e.ohlc[symbol] = h
-
-	h.TimeSeries = map[Timeframe]map[time.Time]*OHLC{
-		M1:  make(map[time.Time]*OHLC),
-		M5:  make(map[time.Time]*OHLC),
-		M15: make(map[time.Time]*OHLC),
-		M30: make(map[time.Time]*OHLC),
-		H1:  make(map[time.Time]*OHLC),
-		H4:  make(map[time.Time]*OHLC),
-		D1:  make(map[time.Time]*OHLC),
-	}
+	initTimeSeries(e, symbol)
 
 	e.quotes = make(map[string]*Quote)
 	e.quotes[symbol] = &Quote{}

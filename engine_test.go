@@ -36,6 +36,7 @@ var _ = Describe("Engine", func() {
 			}
 
 			trades <- trade
+			time.Sleep(time.Millisecond)
 
 			tM1 := t.Truncate(time.Minute)
 			Expect(ngn.ohlc[symbol].TimeSeries[M1][tM1].Open).Should(BeNumerically("==", trade.Price))
@@ -62,6 +63,7 @@ var _ = Describe("Engine", func() {
 		}
 
 		quotes <- quote
+		time.Sleep(time.Millisecond)
 
 		Expect(ngn.quotes[symbol].Bid).Should(BeNumerically("==", quote.Bid))
 		Expect(ngn.quotes[symbol].Ask).Should(BeNumerically("==", quote.Ask))

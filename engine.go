@@ -2,6 +2,8 @@ package trader
 
 import (
 	"time"
+
+	"github.com/apex/log"
 )
 
 //Engine that runs strategies
@@ -90,6 +92,13 @@ func (e *Engine) loop() {
 				case <-e.quit:
 					return
 				case trade := <-ch:
+					log.WithFields(log.Fields{
+						"symbol": s,
+						"price":  trade.Price,
+						"amount": trade.Amount,
+						"time":   trade.Time,
+					}).Debug("Trade")
+
 					e.gotTrade(s, trade)
 					e.changeCh[s] <- struct{}{}
 				}
@@ -105,6 +114,12 @@ func (e *Engine) loop() {
 				case <-e.quit:
 					return
 				case quote := <-ch:
+					log.WithFields(log.Fields{
+						"symbol": s,
+						"bid":    quote.Bid,
+						"ask":    quote.Ask,
+					}).Debug("Quote")
+
 					e.gotQuote(s, quote)
 					e.changeCh[s] <- struct{}{}
 				}
@@ -122,6 +137,9 @@ func (e *Engine) loop() {
 				case <-e.changeCh[symbol]:
 					for i := range e.strategies {
 						if e.strategies[i].Symbol == symbol {
+							log.WithFields(log.Fields{
+								"strategy": e.strategies[i],
+							}).Debug("Tick")
 							go e.strategies[i].OnTick(e)
 						}
 					}

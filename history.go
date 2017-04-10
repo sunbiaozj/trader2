@@ -83,25 +83,21 @@ func (e *Engine) LoadHistory(symbol string, tf Timeframe, reader io.Reader) erro
 
 func (e *Engine) calculateTimeframes(s string) {
 
-	type tmpTF struct {
-		timeframe Timeframe
-		duration  time.Duration
-	}
-
-	timeframes := []tmpTF{
-		tmpTF{M1, time.Minute},
-		tmpTF{M5, time.Minute * 5},
-		tmpTF{M15, time.Minute * 15},
-		tmpTF{M30, time.Minute * 30},
-		tmpTF{H1, time.Hour},
-		tmpTF{H4, time.Hour * 4},
-		tmpTF{D1, time.Hour * 24},
+	timeframes := []Timeframe{M1, M5, M15, M30, H1, H4, D1}
+	durations := []time.Duration{
+		time.Minute,
+		time.Minute * 5,
+		time.Minute * 15,
+		time.Minute * 30,
+		time.Hour,
+		time.Hour * 4,
+		time.Hour * 24,
 	}
 
 	for i := 0; i < (len(timeframes) - 1); i++ {
 
-		currDuration, currTimeFrame := timeframes[i].duration, timeframes[i].timeframe
-		nextDuration, nextTimeFrame := timeframes[i+1].duration, timeframes[i+1].timeframe
+		currDuration, nextDuration := durations[i], durations[i+1]
+		currTimeFrame, nextTimeFrame := timeframes[i], timeframes[i+1]
 
 		currTS := e.ohlc[s].TimeSeries[currTimeFrame]
 		nextTS := e.ohlc[s].TimeSeries[nextTimeFrame]

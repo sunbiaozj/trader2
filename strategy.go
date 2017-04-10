@@ -6,5 +6,5 @@ type Strategy struct {
 	Code   string
 	Title  string
 	Sizes  uint
-	OnTick func(*Engine) error
+	OnTick func(*Engine) (Signal, error)
 }

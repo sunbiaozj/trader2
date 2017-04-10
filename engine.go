@@ -10,6 +10,8 @@ import (
 type Engine struct {
 	strategies []*Strategy
 
+	signals map[*Strategy]chan Signal
+
 	tradeCh  map[string]chan Trade
 	quoteCh  map[string]chan Quote
 	changeCh map[string]chan struct{}
@@ -39,6 +41,7 @@ func NewEngine() *Engine {
 		changeCh: make(map[string]chan struct{}),
 		ohlc:     make(map[string]*History),
 		quit:     make(chan struct{}),
+		signals:  make(map[*Strategy]chan Signal),
 	}
 }
 
@@ -56,6 +59,7 @@ func (e *Engine) AddSymbol(symbol string, quotes chan Quote, trades chan Trade) 
 //AddStrategy to engine
 func (e *Engine) AddStrategy(strategy *Strategy) {
 	e.strategies = append(e.strategies, strategy)
+	e.signals[strategy] = make(chan Signal)
 }
 
 //Run engine
@@ -121,12 +125,12 @@ func (e *Engine) loop() {
 				case <-e.quit:
 					return
 				case <-e.changeCh[symbol]:
-					for i := range e.strategies {
-						if e.strategies[i].Symbol == symbol {
+					for _, oneStrategy := range e.strategies {
+						if oneStrategy.Symbol == symbol {
 							log.WithFields(log.Fields{
-								"strategy": e.strategies[i],
+								"strategy": oneStrategy.Code,
 							}).Debug("Tick")
-							go e.strategies[i].OnTick(e)
+							go signal(e, oneStrategy)
 						}
 					}
 				}
@@ -142,10 +146,29 @@ func (e *Engine) loop() {
 		case <-ticker.C:
 			for _, one := range e.strategies {
 				go func(oneStrategy *Strategy) {
-					oneStrategy.OnTick(e)
+					log.WithFields(log.Fields{
+						"strategy": oneStrategy.Code,
+					}).Debug("Ticker")
+					go signal(e, oneStrategy)
 				}(one)
 			}
 		}
 	}
 
+}
+
+func signal(e *Engine, strategy *Strategy) {
+	signal, err := strategy.OnTick(e)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"strategy": strategy.Code,
+		}).Errorf("Error - %v", err)
+		return
+	}
+
+	select {
+	case e.signals[strategy] <- signal:
+	default:
+	}
 }

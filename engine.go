@@ -67,6 +67,7 @@ func (e *Engine) AddStrategy(strategy *Strategy) {
 //AddExchanger to engine
 func (e *Engine) AddExchanger(ex Exchanger) {
 	e.om = newOrderManagement(e.strategy, ex)
+	e.om.signalCh = e.signals
 	go e.om.signalLoop()
 }
 

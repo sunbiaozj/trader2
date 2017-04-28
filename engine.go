@@ -8,9 +8,10 @@ import (
 
 //Engine that runs strategies
 type Engine struct {
-	strategies []*Strategy
+	strategy *Strategy
+	om       *orderManagement
 
-	signals map[*Strategy]chan Signal
+	signals chan Signal
 
 	tradeCh  map[string]chan Trade
 	quoteCh  map[string]chan Quote
@@ -42,7 +43,7 @@ func NewEngine() *Engine {
 		changeCh: make(map[string]chan struct{}),
 		ohlc:     make(map[string]*History),
 		quit:     make(chan struct{}),
-		signals:  make(map[*Strategy]chan Signal),
+		signals:  make(chan Signal),
 	}
 }
 
@@ -60,8 +61,13 @@ func (e *Engine) AddSymbol(symbol string, quotes chan Quote, trades chan Trade) 
 
 //AddStrategy to engine
 func (e *Engine) AddStrategy(strategy *Strategy) {
-	e.strategies = append(e.strategies, strategy)
-	e.signals[strategy] = make(chan Signal)
+	e.strategy = strategy
+}
+
+//AddExchanger to engine
+func (e *Engine) AddExchanger(ex Exchanger) {
+	e.om = newOrderManagement(e.strategy, ex)
+	go e.om.signalLoop()
 }
 
 //Run engine
@@ -126,13 +132,15 @@ func (e *Engine) loop() {
 				case <-e.quit:
 					return
 				case <-e.changeCh[symbol]:
-					for _, oneStrategy := range e.strategies {
-						if oneStrategy.Symbol == symbol {
-							log.WithFields(log.Fields{
-								"strategy": oneStrategy.Code,
-							}).Debug("Tick")
-							go signal(e, oneStrategy)
-						}
+					if e.strategy == nil {
+						continue
+					}
+
+					if e.strategy.Symbol == symbol {
+						log.WithFields(log.Fields{
+							"strategy": e.strategy.Code,
+						}).Debug("Tick")
+						go signal(e)
 					}
 				}
 			}
@@ -145,31 +153,26 @@ func (e *Engine) loop() {
 	for {
 		select {
 		case <-ticker.C:
-			for _, one := range e.strategies {
-				go func(oneStrategy *Strategy) {
-					log.WithFields(log.Fields{
-						"strategy": oneStrategy.Code,
-					}).Debug("Ticker")
-					go signal(e, oneStrategy)
-				}(one)
-			}
+			log.WithFields(log.Fields{
+				"strategy": e.strategy.Code,
+			}).Debug("Ticker")
+			go signal(e)
 		}
 	}
-
 }
 
-func signal(e *Engine, strategy *Strategy) {
-	signal, err := strategy.OnTick(e)
+func signal(e *Engine) {
+	signal, err := e.strategy.OnTick(e)
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"strategy": strategy.Code,
+			"strategy": e.strategy.Code,
 		}).Errorf("Error - %v", err)
 		return
 	}
 
 	select {
-	case e.signals[strategy] <- signal:
+	case e.signals <- signal:
 	default:
 	}
 }

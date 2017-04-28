@@ -30,6 +30,7 @@ type Trade struct {
 
 //Quote type
 type Quote struct {
+	//TODO refactor into int
 	Bid, Ask float64
 }
 
@@ -45,7 +46,7 @@ func NewEngine() *Engine {
 	}
 }
 
-//AddSymbol to engine
+//AddSymbol to engine - quotes and trades for this symbol
 func (e *Engine) AddSymbol(symbol string, quotes chan Quote, trades chan Trade) {
 	e.quoteCh[symbol] = quotes
 	e.tradeCh[symbol] = trades

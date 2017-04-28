@@ -14,7 +14,7 @@ var _ = Describe("Trader", func() {
 			ma := &trader.Strategy{
 				Title: "Moving average",
 				Code:  "ma",
-				Sizes: 3,
+				Size:  3,
 			}
 
 			ngn := trader.NewEngine()

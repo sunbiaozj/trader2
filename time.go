@@ -60,10 +60,11 @@ func (e *Engine) gotTrade(symbol string, t Trade) {
 
 		if !found {
 			ohlc = &OHLC{
-				Open:  t.Price,
-				High:  t.Price,
-				Low:   t.Price,
-				Close: t.Price,
+				Open:   t.Price,
+				High:   t.Price,
+				Low:    t.Price,
+				Close:  t.Price,
+				Volume: t.Amount,
 			}
 
 			h.TimeSeries[tf][tmpTime] = ohlc
@@ -80,6 +81,8 @@ func (e *Engine) gotTrade(symbol string, t Trade) {
 		if ohlc.Low > t.Price {
 			ohlc.Low = t.Price
 		}
+
+		ohlc.Volume += t.Amount
 
 		ohlc.Close = t.Price
 	}

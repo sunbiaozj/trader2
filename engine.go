@@ -50,6 +50,7 @@ func NewEngine() *Engine {
 func (e *Engine) AddSymbol(symbol string, quotes chan Quote, trades chan Trade) {
 	e.quoteCh[symbol] = quotes
 	e.tradeCh[symbol] = trades
+	e.changeCh[symbol] = make(chan struct{})
 
 	initTimeSeries(e, symbol)
 
@@ -87,7 +88,6 @@ func (e *Engine) loop() {
 						"symbol": s,
 						"price":  trade.Price,
 						"amount": trade.Amount,
-						"time":   trade.Time,
 					}).Debug("Trade")
 
 					e.gotTrade(s, trade)

@@ -28,9 +28,6 @@ const (
 
 //Exchanger interface
 type Exchanger interface {
-	FetchOrders() ([]Order, error)
-	FetchPositions() ([]Position, error)
-
 	Orders() []Order
 	Positions() []Position
 

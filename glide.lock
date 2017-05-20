@@ -1,13 +1,22 @@
-hash: 9c68688606fce53dc1b390ebf408a3966e88fcee485f510401e370e72090b6c3
-updated: 2017-04-28T12:43:23.897016369+03:00
+hash: 984e005b4b4737cbcf52d5825593717c609710eb71a57477ae97040d02648338
+updated: 2017-05-21T00:21:43.353818799+03:00
 imports:
 - name: github.com/apex/log
-  version: 603945f16991551ab5a7a91dddcac834eed40220
+  version: 7259ed75bd8d8113a7ac9831ecb0558cac33ceed
+  subpackages:
+  - handlers/cli
+- name: github.com/bitfinexcom/bitfinex-api-go
+  version: 2d67f9cd15489f55cb1b9bb1aab26f7b0b5c7b02
+  subpackages:
+  - utils
+  - v1
 - name: github.com/pkg/errors
-  version: ff09b135c25aae272398c51a07235b90a75aa4f0
+  version: c605e284fe17294bda444b34710735b29d1a9d90
 testImports:
+- name: github.com/gorilla/websocket
+  version: a91eba7f97777409bc2c443f5534d41dd20c5720
 - name: github.com/onsi/ginkgo
-  version: 83438ca4278f2f56757b9ab2cb15dd4f596d84e8
+  version: 502bce873ec80059e9465bf32a9aa61e891b7009
   subpackages:
   - config
   - internal/codelocation
@@ -27,7 +36,7 @@ testImports:
   - reporters/stenographer/support/go-isatty
   - types
 - name: github.com/onsi/gomega
-  version: 9b8c753e8dfb382618ba8fa19b4197b5dcb0434c
+  version: 00acfa9d92a386415bd235ab069c52063f925998
   subpackages:
   - format
   - internal/assertion
@@ -40,9 +49,33 @@ testImports:
   - matchers/support/goraph/node
   - matchers/support/goraph/util
   - types
+- name: golang.org/x/net
+  version: 513929065c19401a1c7b76ecd942f9f86a0c061b
+  subpackages:
+  - html
+  - html/atom
+  - html/charset
 - name: golang.org/x/sys
-  version: 9ccfe848b9db8435a24c424abbc07a921adf1df5
+  version: a2e06a18b0d52d8cb2010e04b372a1965d8e3439
   subpackages:
   - unix
+- name: golang.org/x/text
+  version: 19e51611da83d6be54ddafce4a4af510cb3e9ea4
+  subpackages:
+  - encoding
+  - encoding/charmap
+  - encoding/htmlindex
+  - encoding/internal
+  - encoding/internal/identifier
+  - encoding/japanese
+  - encoding/korean
+  - encoding/simplifiedchinese
+  - encoding/traditionalchinese
+  - encoding/unicode
+  - internal/tag
+  - internal/utf8internal
+  - language
+  - runes
+  - transform
 - name: gopkg.in/yaml.v2
   version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b

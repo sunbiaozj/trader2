@@ -1,22 +1,17 @@
 hash: 984e005b4b4737cbcf52d5825593717c609710eb71a57477ae97040d02648338
-updated: 2017-05-21T00:21:43.353818799+03:00
+updated: 2017-05-27T09:43:23.5374755+03:00
 imports:
 - name: github.com/apex/log
-  version: 7259ed75bd8d8113a7ac9831ecb0558cac33ceed
-  subpackages:
-  - handlers/cli
+  version: 8f3a15d95392c8fc202d1e1059f46df21dff2992
 - name: github.com/bitfinexcom/bitfinex-api-go
   version: 2d67f9cd15489f55cb1b9bb1aab26f7b0b5c7b02
   subpackages:
-  - utils
   - v1
 - name: github.com/pkg/errors
   version: c605e284fe17294bda444b34710735b29d1a9d90
 testImports:
-- name: github.com/gorilla/websocket
-  version: a91eba7f97777409bc2c443f5534d41dd20c5720
 - name: github.com/onsi/ginkgo
-  version: 502bce873ec80059e9465bf32a9aa61e891b7009
+  version: a1f616c97771e46da1722d3aa9dcde0a43f55682
   subpackages:
   - config
   - internal/codelocation
@@ -36,7 +31,7 @@ testImports:
   - reporters/stenographer/support/go-isatty
   - types
 - name: github.com/onsi/gomega
-  version: 00acfa9d92a386415bd235ab069c52063f925998
+  version: 39a54bd3c3bbfe1c331a9b3207e92134c77ed812
   subpackages:
   - format
   - internal/assertion
@@ -50,13 +45,13 @@ testImports:
   - matchers/support/goraph/util
   - types
 - name: golang.org/x/net
-  version: 513929065c19401a1c7b76ecd942f9f86a0c061b
+  version: 48359f4f600b3a2d5cf657458e3f940021631a56
   subpackages:
   - html
   - html/atom
   - html/charset
 - name: golang.org/x/sys
-  version: a2e06a18b0d52d8cb2010e04b372a1965d8e3439
+  version: a55a76086885b80f79961eacb876ebd8caf3868d
   subpackages:
   - unix
 - name: golang.org/x/text
